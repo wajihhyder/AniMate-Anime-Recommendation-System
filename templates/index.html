@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AniMate - Anime Recommendation System</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .anime-card { margin-bottom: 20px; transition: transform 0.2s; }
+        .anime-card:hover { transform: scale(1.03); }
+        .search-bar { margin: 20px 0; }
+        .card-img-top { height: 300px; object-fit: cover; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center my-4">AniMate</h1>
+
+        <div class="search-bar">
+            <form action="{{ url_for('search') }}" method="get">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="query" placeholder="Search anime..."
+                           value="{{ query if query else '' }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        {% if search_results is defined %}
+            <h2>Results for "{{ query }}"</h2>
+            <div class="row">
+                {% for _, anime in search_results.iterrows() %}
+                <div class="col-md-3">
+                    <div class="card anime-card">
+                        <img src="{{ url_for('static', filename='images/anime/' ~ anime.anime_id ~ '.jpg') if anime.anime_id else url_for('static', filename='placeholder.jpg') }}"
+                            class="img-fluid" alt="{{ anime.Name }}"
+                            onerror="this.onerror=null; this.src='{{ url_for('static', filename='placeholder/placeholder.jpg') }}';">                      
+                        <div class="card-body">
+                            <h5 class="card-title">{{ anime.Name }}</h5>
+                            <p class="card-text">
+                                <small class="text-muted">Score: {{ anime.Score if anime.Score > 0 else 'N/A' }}</small><br>
+                                <small class="text-muted">Type: {{ anime.Type }}</small>
+                            </p>
+                            <a href="{{ url_for('recommend', anime_title=anime.Name) }}" class="btn btn-primary btn-sm">Recommendations</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <h2>Top Rated Anime</h2>
+            <div class="row">
+                {% for _, anime in top_anime.iterrows() %}
+                <div class="col-md-3">
+                    <div class="card anime-card">
+                        <img src="{{ url_for('static', filename='images/anime/' ~ anime.anime_id ~ '.jpg') if anime.anime_id else url_for('static', filename='placeholder.jpg') }}"
+                            class="card-img-top" alt="{{ anime.Name }}"
+                            onerror="this.onerror=null; this.src='{{ url_for('static', filename='placeholder/placeholder.jpg') }}'">
+                        <div class="card-body">              
+                            <h5 class="card-title">{{ anime.Name }}</h5>
+                            <p class="card-text">
+                                <small class="text-muted">Score: {{ anime.Score if anime.Score > 0 else 'N/A' }}</small><br>
+                                <small class="text-muted">Type: {{ anime.Type }}</small>
+                            </p>
+                            <a href="{{ url_for('recommend', anime_title=anime.Name) }}" class="btn btn-primary btn-sm">Recommendations</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    <div class="text-center mt-4">
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+    </div>
+</body>
+</html>
